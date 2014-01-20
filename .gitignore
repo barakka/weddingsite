@@ -6,3 +6,4 @@ src/main/webapp/WEB-INF/lib/**
 .gradle
 .DS_Store
 src/main/webapp/WEB-INF/appengine-generated
+build/
