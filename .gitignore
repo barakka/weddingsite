@@ -1,0 +1,8 @@
+.project
+.classpath
+.settings
+src/main/webapp/WEB-INF/classes/**
+src/main/webapp/WEB-INF/lib/**
+.gradle
+.DS_Store
+src/main/webapp/WEB-INF/appengine-generated
