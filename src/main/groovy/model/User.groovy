@@ -1,21 +1,70 @@
 package model
 
+import com.google.appengine.api.datastore.PhoneNumber
 import groovyx.gaelyk.datastore.Entity
 import groovyx.gaelyk.datastore.Parent;
 
 import com.google.appengine.api.datastore.Email
 import com.google.appengine.api.datastore.Key
+import groovyx.gaelyk.logging.GroovyLogger
+import utils.JSON
 
 @Entity
 class User {
 	@groovyx.gaelyk.datastore.Key
 	long id;
 	String name;
-	Email email;
+    Email email;
+    PhoneNumber phoneNumber;
+    int showSize;
+
 	@Parent Key parent;
-	boolean male;
-	
-	public Map asMap(){
-		return [ id: id, name: name, email: email?.email, parent: parent as String, male: male];
-	} 
+    boolean male;
+    boolean predefined;
+
+    public void update(Map properties){
+        properties.each {
+            this.setProperty(it.key,it.value);
+        }
+    }
+
+    @Override
+    public Object asType(Class type){
+        if (type == JSON){
+            def json = new JSON()
+            json.putAll( [
+                    id: id, name: name, email: getEmail(), phoneNumber: getPhoneNumber(), showSize: showSize,
+                    parent: parent as String, male: male,
+                    predefined: predefined
+            ])
+
+            new GroovyLogger("test").info(json.toString())
+            return json
+        }
+    }
+
+    void setPhoneNumber(String number){
+        this.phoneNumber = number as PhoneNumber;
+    }
+
+    void setPhoneNumber(PhoneNumber number){
+        this.phoneNumber = number;
+    }
+
+    String getPhoneNumber(){
+        new GroovyLogger("test").info("Phone number ${this.phoneNumber?.number}")
+        return this.phoneNumber?.number;
+    }
+
+    void setEmail(String mail){
+        this.email = mail as Email;
+    }
+
+    void setEmail(Email mail){
+        this.email = mail;
+    }
+
+    String getEmail(){
+        return this.email?.email;
+    }
 }

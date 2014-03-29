@@ -1,4 +1,7 @@
 get "/admin", forward: "/admin/admin.html"
+get "/a/@groupId", forward: "/index.html#/@groupId/home"
+get "/", forward: "/index.html"
+get "/favicon.ico", forward: "/img/favicon.ico"
 
 get "/groups/@groupId/users/@userId?", forward: "/users.groovy?groupId=@groupId"
 put "/groups/@groupId/users/@userId", forward: "/users.groovy?edit=true&groupId=@groupId&userId=@userId"

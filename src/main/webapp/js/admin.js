@@ -5,14 +5,14 @@ var adminModule = angular.module("admin", [ "ngRoute" ]);
 
 adminModule.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.when('/groups', {
-		templateUrl : 'groups-list.html',
+		templateUrl : '/admin/groups-list.html',
 		controller : 'GroupListCtrl'
 	}).when('/groups/:groupId', {
-		templateUrl : 'group-edit.html',
+		templateUrl : '/admin/group-edit.html',
 		controller : 'GroupEditCtrl'
 	}).when('/group', {
-		templateUrl : 'group-edit.html',
-		controller : 'GroupAddCtrl',
+		templateUrl : '/admin/group-edit.html',
+		controller : 'GroupAddCtrl'
 	}).otherwise({
 		redirectTo : '/groups'
 	});

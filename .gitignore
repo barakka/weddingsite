@@ -7,3 +7,5 @@ src/main/webapp/WEB-INF/lib/**
 .DS_Store
 src/main/webapp/WEB-INF/appengine-generated
 build/
+.idea/
+*.iml

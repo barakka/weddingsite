@@ -1,0 +1,176 @@
+
+<div class="container" ng-switch="stage">
+    <div class="panel panel-default" ng-switch-when="0">
+        <div class="panel-heading">
+            <h3 class="panel-title">Una pequena enquesta</h3>
+        </div>
+        <div class="panel-body">
+            <p>Aqui va el texto con la introduccion</p>
+            <button class="btn btn-primary" ng-click="next()">Empezar</button>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-switch-when="1">
+        <div class="panel-heading">
+            <h3 class="panel-title">Composicion del grupo</h3>
+        </div>
+        <div class="panel-body">
+            <p>Indica la composicion de tu grupo</p>
+            <form name="compositionForm">
+                <div class="form-group" ng-class="{'has-error': compositionForm.numParticipants.$invalid}">
+                    <label for="numParticipants">Numero de participantes</label>
+                    <input type="number" class="form-control" id="numParticipants" placeholder="Participantes"
+                           ng-model="group.profile.numParticipants" name="numParticipants"
+                           required autofocus>
+                </div>
+
+                <div class="form-group" ng-class="{'has-error': compositionForm.numChildren.$invalid}">
+                    <label for="numChildren">De los cuales ninos</label>
+                    <input type="number" class="form-control" id="numChildren" placeholder="Ninos"
+                           ng-model="group.profile.numChildren"
+                           name="numChildren" required>
+                </div>
+            </form>
+
+            <button class="btn btn-primary" ng-click="next()" ng-disabled="compositionForm.$invalid">Siguente</button>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-switch-when="2">
+        <div class="panel-heading">
+            <h3 class="panel-title">Alojamiento</h3>
+        </div>
+        <div class="panel-body">
+            <p>Dinos si necesitas alojamiento</p>
+            <form name="accomodationForm">
+                <div class="form-group" ng-class="{'has-error': accomodationForm.origin.$invalid}">
+                    <label for="origin">De donde vienes?</label>
+                    <select class="form-control" id="origin"
+                            ng-model="group.profile.origin" name="origin"
+                            required autofocus>
+                        <option value="Alicante">Alicante</option>
+                        <option value="Barcelona">Barcelona</option>
+                        <option value="Burgos">Burgos</option>
+                        <option value="Soria">Soria</option>
+                        <option value="Valencia">Valencia</option>
+                    </select>
+                </div>
+
+                <div class="form-group" ng-class="{'has-error': accomodationForm.needsAccomodation.$invalid}">
+                    <label for="needsAccomodation1">Necesitas alojamiento?</label>
+
+                    <div class="form-control">
+                        <label class="radio-inline">
+                            <input type="radio" id="needsAccomodation1" ng-value="{{true}}"
+                                   ng-model="group.profile.needsAccomodation" name="needsAccomodation"> Si
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" id="needsAccomodation2" ng-value="{{false}}"
+                                   ng-model="group.profile.needsAccomodation" name="needsAccomodation"> No
+                        </label>
+                    </div>
+                </div>
+            </form>
+
+            <button class="btn btn-primary" ng-click="next()" ng-disabled="accomodationForm.$invalid">Siguente</button>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-switch-when="3">
+        <div class="panel-heading">
+            <h3 class="panel-title">Otros servicios</h3>
+        </div>
+        <div class="panel-body">
+            <p>Dinos si necesitas otros servicios</p>
+            <form name="otherForm">
+                <div class="form-group" ng-class="{'has-error': otherForm.needsBeautyService.$invalid}">
+                    <label for="needsBeautyService1">Necesitas pelucheria?</label>
+
+                    <div class="form-control">
+                        <label class="radio-inline">
+                            <input type="radio" id="needsBeautyService1" ng-value="{{true}}"
+                                   ng-model="group.profile.needsBeautyService" name="needsBeautyService"> Si
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" id="needsBeautyService2" ng-value="{{false}}"
+                                   ng-model="group.profile.needsBeautyService" name="needsBeautyService"> No
+                        </label>
+                    </div>
+                </div>
+            </form>
+
+            <button class="btn btn-primary" ng-click="next()" ng-disabled="otherForm.$invalid">Siguente</button>
+        </div>
+    </div>
+
+    <div class="panel panel-default" ng-switch-when="4">
+        <div class="panel-heading">
+            <h3 class="panel-title">Contactos</h3>
+        </div>
+        <div class="panel-body">
+            <p>Dejanos tus contactos, y personaliza el aceso a la app</p>
+            <form name="userForm">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Telefono</th>
+                            <th width="10%"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-form="uForm" ng-repeat="user in group.users">
+                            <td ng-class="{'has-error': uForm.userName.$invalid}">
+                                <input type="text"
+                                       class="form-control"
+                                       id="userName"
+                                       placeholder="Nombre"
+                                       ng-model="user.name"
+                                       name="userName"
+                                       required>
+                            </td>
+                            <td ng-class="{'has-error': uForm.email.$invalid}">
+                                <input type="email"
+                                       class="form-control"
+                                       id="userMail"
+                                       placeholder="e-mail"
+                                       ng-model="user.email"
+                                       name="email">
+                            </td>
+                            <td ng-class="{'has-error': uForm.phoneNumber.$invalid}">
+                                <input type="text"
+                                       class="form-control"
+                                       id="userPhone"
+                                       placeholder="Telefono"
+                                       ng-model="user.phoneNumber"
+                                       name="phoneNumber"
+                                       ng-pattern="/^(\d{3}[ -]?){2}\d{3}$/">
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" ng-click="remove($index)"
+                                        ng-hide="user.predefined">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" ng-click="add()" ng-disabled="!canAdd()">
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </form>
+
+            <button class="btn btn-primary" ng-click="save()" ng-disabled="userForm.$invalid || !canAdd()">Terminar</button>
+        </div>
+    </div>
+</div>

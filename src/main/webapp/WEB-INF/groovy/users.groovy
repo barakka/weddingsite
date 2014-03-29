@@ -4,6 +4,7 @@ import model.User
 
 import com.google.appengine.api.datastore.Email
 import com.google.appengine.api.datastore.Key
+import utils.JSON
 
 
 def String list(parentKey){
@@ -11,7 +12,7 @@ def String list(parentKey){
 		ancestor parentKey
 	}
 	
-	return new JsonBuilder(users.collect({it.asMap()})).toPrettyString();
+	return new JsonBuilder(users.collect({it as JSON})).toPrettyString();
 }
 
 def json = new JsonBuilder();
@@ -21,7 +22,8 @@ def parentKey = ["Group", params.groupId as long] as Key;
 if (params["new"]){
 	def result = new JsonSlurper().parse(request.reader);
 	
-	def user = new User(name: result.name, email: result.email as Email, parent: parentKey, male: (result.male ? true : false) );
+	def user = new User(name: result.name, email: result.email as Email, parent: parentKey,
+            male: (result.male ? true : false), predefined: true );
 	user.save();
 	
 	print list(parentKey);
@@ -54,7 +56,7 @@ if (params["new"]){
 		def user = User.get(parentKey,params.userId as long);
 		
 		if (user!=null){
-			json = new JsonBuilder(user.asMap());			
+			json = new JsonBuilder(user as JSON);
 		} 
 		
 		print json.toPrettyString();
