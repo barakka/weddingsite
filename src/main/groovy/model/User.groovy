@@ -16,10 +16,10 @@ class User {
 	String name;
     Email email;
     PhoneNumber phoneNumber;
-    int showSize;
+    int shoeSize;
 
 	@Parent Key parent;
-    boolean male;
+	    
     boolean predefined;
 
     public void update(Map properties){
@@ -33,8 +33,12 @@ class User {
         if (type == JSON){
             def json = new JSON()
             json.putAll( [
-                    id: id, name: name, email: getEmail(), phoneNumber: getPhoneNumber(), showSize: showSize,
-                    parent: parent as String, male: male,
+                    id: id, 
+					name: name, 
+					email: getEmail(), 
+					phoneNumber: getPhoneNumber(), 
+					shoeSize: shoeSize,
+                    parent: parent as String, 
                     predefined: predefined
             ])
 

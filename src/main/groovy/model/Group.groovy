@@ -11,6 +11,7 @@ class Group {
 	@Key
 	long id
 	String name
+	boolean manyParticipants;
 
     com.google.appengine.api.datastore.Key profileKey;
 
@@ -19,7 +20,7 @@ class Group {
         if (type == FullJSON){
             def json = new FullJSON()
 
-            json.putAll([ id: id, name: name]);
+            json.putAll(asMap());
 
             json["users"] = users.collect({ it as JSON})
 
@@ -30,10 +31,18 @@ class Group {
 
         if (type == JSON){
             def json = new JSON();
-            json.putAll([ id: id, name: name]);
+            json.putAll(asMap());
             return json;
         }
     }
+	
+	private Map asMap(){
+		return [ 
+				id: id, 
+				name: name,
+				manyParticipants: manyParticipants
+			];
+	}
 
     private Profile getProfile() {
         if (!profileKey){

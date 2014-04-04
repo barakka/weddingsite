@@ -1,0 +1,21 @@
+body.calendar {
+	height: 100%;
+}
+
+body.calendar div.page-container {
+	height: 100%;
+}
+
+body.calendar h1.pagetitle {
+	background-color: #f0851a;
+}
+
+body.calendar div.content-container {
+	
+}
+
+iframe.calendar {
+	width: 100%;
+	height: 400px;
+}
+

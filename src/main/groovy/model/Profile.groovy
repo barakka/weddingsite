@@ -15,15 +15,24 @@ class Profile {
     int stage;
 
     // Stage 1 - participation
+	boolean participationConfirmed;
     int numParticipants;
-    int numChildren;
+    int numYoungChildren;
+	int numMajorChildren;
 
     // Stage 2 - location
     String origin;
+	String orginDetails;
+	String transportation;
     boolean needsAccomodation;
+	String accomodationType;
 
     // Stage 3 - other
-    boolean needsBeautyService
+    boolean needsBeautyService;
+	boolean needsIroning;
+	boolean needsMakeUp;
+	boolean needsSightseeing;
+	String needsOther;
 
     // Stage 4 - participants
 
@@ -37,9 +46,27 @@ class Profile {
     public Object asType(Class type) {
         if (type == JSON) {
             def json = new JSON()
-            json.putAll([id: id, complete: complete, stage: stage, numParticipants: numParticipants,
-                    numChildren: numChildren, origin: origin, needsAccomodation: needsAccomodation,
-                    needsBeautyService: needsBeautyService
+            json.putAll([
+				id: id, 
+				complete: complete, 
+				stage: stage, 
+				
+				participationConfirmed: participationConfirmed, 
+				numParticipants: numParticipants, 
+				numYoungChildren: numYoungChildren,
+				numMajorChildren: numMajorChildren,
+				
+				origin: origin,
+				orginDetails: orginDetails,
+				transportation: transportation, 
+				needsAccomodation: needsAccomodation,
+				accomodationType: accomodationType,
+				
+				needsBeautyService: needsBeautyService,
+				needsIroning: needsIroning,
+				needsMakeUp: needsMakeUp,
+				needsSightseeing: needsSightseeing,
+				needsOther: needsOther
             ])
             return json
         }

@@ -14,14 +14,20 @@ weddingModule.config([ '$routeProvider', function ($routeProvider) {
         resolve: {
             group: "group"
         }
+    }).when('/:groupId/calendar',{
+        templateUrl: '/partials/calendar.html',
+        controller: 'HomeCtrl',
+        resolve: {
+            group: "group"
+        }
     }).when('/:groupId/church',{
-        templateUrl: '/partials/fake.html',
+        templateUrl: '/partials/church.html',
         controller: 'HomeCtrl',
         resolve: {
             group: "group"
         }
     }).when('/:groupId/dinner',{
-        templateUrl: '/partials/fake.html',
+        templateUrl: '/partials/dinner.html',
         controller: 'HomeCtrl',
         resolve: {
             group: "group"
@@ -61,7 +67,7 @@ weddingModule.config([ '$routeProvider', function ($routeProvider) {
     });
 } ]);
 
-weddingModule.factory("groupService", ["$http", function($http){
+weddingModule.factory("groupService", ["$http","$q", function($http,$q){
     var service = {}
     service.group = null;
 
@@ -81,18 +87,23 @@ weddingModule.factory("groupService", ["$http", function($http){
                     return response.data;
                 });
         } else {
+        	var deferred = $q.defer();
+        	
             service.group = {
+            	id: 0,
                 profile : {
                     id: 0,
                     complete: true
                 }
             };
-            return service.group;
+            
+            deferred.resolve(service.group);
+            return deferred.promise;
         }
     };
 
-    service.saveGroup= function(){
-        return $http.put("/groups/"+ service.group.id,service.group)
+    service.saveGroup= function(group){
+        return $http.put("/groups/"+ group.id,group)
             .success(function(data){
                 service.group = data;
             });
@@ -116,16 +127,34 @@ weddingModule.factory("group", ["$route","groupService", function($route,groupSe
 }]);
 
 weddingModule.controller("IndexCtrl",["$scope", "$location", function($scope,$location){
-	$scope.loc = function(){
+	$scope.bodyStyle = function(){
 		var parts=$location.path().split('/');
-		return parts[parts.length-1];
+		if (parts.length>2){
+			var style = parts[2];
+			
+			if (parts[2] == "church" || parts[2] == "dinner" || parts[2] == "calendar"){
+				style += " static-inner";
+			}
+			
+			return style;
+		} else {
+			return parts[parts.length-1];
+		}
 	};
 }]);
 
-weddingModule.controller("LoginCtrl",["$scope", "$location", function($scope,$location){
+weddingModule.controller("LoginCtrl",["$scope", "$location", "groupService", function($scope,$location,groupService){
 	$scope.access = function(){		
 		if ($scope.signinForm.group.$valid){
-			$location.path("/" + $scope.groupId + "/home");
+			groupService
+				.loadGroup($scope.groupId)
+				.then(function(group){
+					if (group.profile.complete){
+						$location.path("/" + $scope.groupId + "/home");
+					} else {
+						$location.path("/" + group.id + "/survey/" + group.profile.stage);
+					}
+				});
 		}
 	}
 		
@@ -139,19 +168,57 @@ weddingModule.controller("HomeCtrl",["$scope", "$location", "group", function($s
     }
 
     $scope.goTo = function(page){
-		$location.path("/" + $scope.group.id + "/" + page);
+    	if (page!="questionnaire"){
+    		$location.path("/" + $scope.group.id + "/" + page);
+    	} else {
+    		$location.path("/" + $scope.group.id + "/survey/1");
+    	}
 	}
+    
+    $scope.openChurchMap = function(){
+    	var os = $.ua.os.name;
+    	
+    	if (os == 'iOS' || os == 'Mac OS X'){
+    		return "http://maps.apple.com/?q=Iglesia+de+San+Juan+del+Hospital";
+    	} else if (os == "Android") {
+    		return "geo:0,0?q=Iglesia+de+San+Juan+del+Hospital";
+    	} else {
+    		return "http://maps.google.com/?q=Iglesia+de+San+Juan+del+Hospital";
+    	}
+    }
+    
+    $scope.openDinnerMap = function(){
+    	var os = $.ua.os.name;
+    	
+    	if (os == 'iOS' || os == 'Mac OS X'){
+    		return "http://maps.apple.com/?q=Calle+102+37+Ribarroja+Valencia";
+    	} else if (os == "Android") {
+    		return "geo:39.550424,-0.538643";
+    	} else {
+    		return "http://maps.google.com/?q=Calle+103,+37,+ribarroja";
+    	}
+    }
+    
+    $scope.openBusMap = function(){
+    	alert("¡Hemos dicho próximamente!")
+    }
 }]);
 
 weddingModule.controller("SurveyCtrl",["$scope","group","$routeParams","$location","groupService",function($scope, group,$routeParams, $location, groupService){
     $scope.group = group;
-    $scope.stage = parseInt($routeParams.stageId);
-
-    console.log("Stage reset")
+    $scope.stage = parseInt($routeParams.stageId);    
 
     $scope.next = function(){
-        $scope.stage += 1;
-        $location.path("/" + group.id + "/survey/" + $scope.stage);
+    	if ($scope.stage==1 && group.profile.participationConfirmed == false){
+    		$scope.stage = 6;
+    	}else if ($scope.stage==3 && group.profile.origin == 'Valencia'){
+    		// Skip accomodation if from valencia
+    		$scope.stage = 6;        
+    	} else {    		
+    		$scope.stage += 1;
+    	}
+    	
+    	$location.path("/" + group.id + "/survey/" + $scope.stage);
     };
 
     $scope.add = function(){
@@ -178,9 +245,7 @@ weddingModule.controller("SurveyCtrl",["$scope","group","$routeParams","$locatio
         group.profile.stage = $scope.stage;
         group.profile.complete = true;
 
-        groupService.saveGroup().then(function(data){
-            console.log("saveGroup completed");
-            console.log(data);
+        groupService.saveGroup(group).then(function(data){
             $location.path("/" + group.id + "/home").replace();
         });
     }
