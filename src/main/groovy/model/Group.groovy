@@ -17,20 +17,20 @@ class Group {
 
     @Override
     public Object asType(Class type){
-        if (type == FullJSON){
-            def json = new FullJSON()
+        if (type == Map){
+            def json = [:];
 
             json.putAll(asMap());
 
-            json["users"] = users.collect({ it as JSON})
+            json["users"] = users.collect({ it as Map})
 
-            json["profile"] =  profile as JSON
+            json["profile"] =  profile as Map
 
             return json
         }
 
-        if (type == JSON){
-            def json = new JSON();
+        if (type == Map){
+            def json = [:];
             json.putAll(asMap());
             return json;
         }

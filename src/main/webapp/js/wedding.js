@@ -5,62 +5,70 @@
 var weddingModule = angular.module("wedding", ["ngRoute"]);
 
 weddingModule.config([ '$routeProvider', function ($routeProvider) {
+	
+	groupLoaderFunction = ["$route","groupService", function($route,groupService){
+	    return groupService.loadGroup($route.current.params.groupId);
+	}];
+	
     $routeProvider.when('/login', {
         templateUrl: '/partials/login.html',
-        controller: 'LoginCtrl'
+        controller: 'LoginCtrl',
+        resolve: {
+            group: function(){return null;}
+        }
     }).when('/:groupId/home',{
         templateUrl: '/partials/home.html',
         controller: 'HomeCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when('/:groupId/calendar',{
         templateUrl: '/partials/calendar.html',
-        controller: 'HomeCtrl',
+        controller: 'CalendarCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when('/:groupId/church',{
         templateUrl: '/partials/church.html',
         controller: 'HomeCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when('/:groupId/dinner',{
         templateUrl: '/partials/dinner.html',
         controller: 'HomeCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when('/:groupId/upload',{
         templateUrl: '/partials/fake.html',
         controller: 'HomeCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when('/:groupId/comment',{
-        templateUrl: '/partials/fake.html',
-        controller: 'HomeCtrl',
+        templateUrl: '/partials/comment.html',
+        controller: 'CommentCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when('/:groupId/accomodation',{
         templateUrl: '/partials/fake.html',
         controller: 'HomeCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when('/:groupId/questionnaire',{
         templateUrl: '/partials/fake.html',
         controller: 'HomeCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).when("/:groupId/survey/:stageId",{
         templateUrl: "/partials/survey.html",
         controller: 'SurveyCtrl',
         resolve: {
-            group: "group"
+            group: groupLoaderFunction
         }
     }).otherwise({
         redirectTo: '/login'
@@ -122,17 +130,15 @@ weddingModule.factory("groupService", ["$http","$q", function($http,$q){
     return service;
 }]);
 
-weddingModule.factory("group", ["$route","groupService", function($route,groupService){
-    return groupService.loadGroup($route.current.params.groupId);
-}]);
-
-weddingModule.controller("IndexCtrl",["$scope", "$location", function($scope,$location){
-	$scope.bodyStyle = function(){
+weddingModule.controller("IndexCtrl",["$scope", "$location","$route", function($scope,$location,$route){	
+	$scope.bodyStyle = "";
+	
+	computeStyle=function(){
 		var parts=$location.path().split('/');
 		if (parts.length>2){
 			var style = parts[2];
 			
-			if (parts[2] == "church" || parts[2] == "dinner" || parts[2] == "calendar"){
+			if (parts[2] == "church" || parts[2] == "dinner" || parts[2] == "calendar" || parts[2] == "comment"){
 				style += " static-inner";
 			}
 			
@@ -141,18 +147,30 @@ weddingModule.controller("IndexCtrl",["$scope", "$location", function($scope,$lo
 			return parts[parts.length-1];
 		}
 	};
+	
+	$scope.$on("$viewContentLoaded", function(){
+		$scope.bodyStyle = computeStyle();
+	});
 }]);
 
 weddingModule.controller("LoginCtrl",["$scope", "$location", "groupService", function($scope,$location,groupService){
+	$scope.loading = false;
+	
 	$scope.access = function(){		
 		if ($scope.signinForm.group.$valid){
+			$scope.loading = true;
 			groupService
 				.loadGroup($scope.groupId)
 				.then(function(group){
-					if (group.profile.complete){
-						$location.path("/" + $scope.groupId + "/home");
+					if (group.profile){
+						if (group.profile.complete){
+							$location.path("/" + $scope.groupId + "/home");
+						} else {
+							$location.path("/" + group.id + "/survey/" + group.profile.stage);
+						}
 					} else {
-						$location.path("/" + group.id + "/survey/" + group.profile.stage);
+						$scope.loading=false;
+						$scope.signinForm.group.$setValidity("pattern",false);
 					}
 				});
 		}
@@ -200,20 +218,30 @@ weddingModule.controller("HomeCtrl",["$scope", "$location", "group", function($s
     }
     
     $scope.openBusMap = function(){
-    	alert("¡Hemos dicho próximamente!")
+    	alert("¡Hemos dicho próximamente!");
     }
 }]);
 
 weddingModule.controller("SurveyCtrl",["$scope","group","$routeParams","$location","groupService",function($scope, group,$routeParams, $location, groupService){
     $scope.group = group;
-    $scope.stage = parseInt($routeParams.stageId);    
+    $scope.stage = parseInt($routeParams.stageId);
+    STAGES = {
+    	intro: 0,
+    	participation: 1,
+    	participants: 2,
+    	dinnerRequirements: 3,
+    	transportation: 4,
+    	accomodation: 5,
+    	other: 6,
+    	participantsDetails: 7
+    }
 
     $scope.next = function(){
-    	if ($scope.stage==1 && group.profile.participationConfirmed == false){
-    		$scope.stage = 6;
-    	}else if ($scope.stage==3 && group.profile.origin == 'Valencia'){
+    	if ($scope.stage==STAGES.participation && group.profile.participationConfirmed == false){
+    		$scope.stage = STAGES.participantsDetails;
+    	}else if ($scope.stage==STAGES.transportation && group.profile.origin == 'Valencia'){
     		// Skip accomodation if from valencia
-    		$scope.stage = 6;        
+    		$scope.stage = STAGES.participantsDetails;        
     	} else {    		
     		$scope.stage += 1;
     	}
@@ -238,7 +266,7 @@ weddingModule.controller("SurveyCtrl",["$scope","group","$routeParams","$locatio
 
     $scope.remove = function(index){
         var user = group.users.splice(index,1)[0];
-        service.removeUser(group,user);
+        groupService.removeUser(group,user);
     };
 
     $scope.save = function(){
@@ -248,5 +276,90 @@ weddingModule.controller("SurveyCtrl",["$scope","group","$routeParams","$locatio
         groupService.saveGroup(group).then(function(data){
             $location.path("/" + group.id + "/home").replace();
         });
+    };
+    
+    $scope.cancel = function(){
+    	$location.path("/" + group.id + "/home").replace();
     }
+    
+    $scope.editableUser = null;
+    $scope.editableIndex = null;
+    
+    $scope.editEditableUser = function (index){
+    	$scope.editableUser = angular.copy(group.users[index]);
+    	$scope.editableIndex = index;
+    }
+    
+    $scope.addEditableUser = function(){
+    	$scope.editableUser = {
+	       name: null,
+	       email: null
+	    };
+    	$scope.editableIndex = null;
+    }
+    
+    $scope.cancelEditableUser = function(){
+    	$scope.editableUser = null;
+    	$scope.editableIndex = null;
+    }
+    
+    $scope.saveEditableUser = function(){
+    	if ($scope.editableIndex){
+    		group.users.splice($scope.editableIndex,1,$scope.editableUser);    		
+    	} else {
+    		group.users.push($scope.editableUser);
+    	}
+    	
+    	$scope.editableUser = null;
+    	$scope.editableIndex = null;
+    }
+}]);
+
+weddingModule.controller("CalendarCtrl",["$scope","group",function($scope,group){
+	
+	$scope.event = null;
+	
+	$scope.$on("$viewContentLoaded",function(){
+		$("#scheduler").fullCalendar({
+			defaultDate : '2014-09-06',
+			events: 'http://www.google.com/calendar/feeds/barakka.org_8g6smdg6nt1ge257qk26o1ekg8%40group.calendar.google.com/public/basic',
+			
+			eventClick: function(calEvent, jsEvent, view) {
+				$scope.event = calEvent;
+				$scope.$digest();
+		        return false;
+		    }
+		    
+		});
+	});
+	
+	$scope.closeEvent = function(){
+		$scope.event = null;
+	}
+	
+}]);
+
+weddingModule.controller("CommentCtrl",["$scope","$http","group",function($scope,$http,group){
+	$scope.sending = false;
+	resetComment = function(){
+		$scope.comment = { 
+				to: "AxelYSol"
+			};
+	}
+	
+	$scope.saveComment = function(){
+		$scope.sending = true;
+		$scope.comment.date = new Date();
+		return $http.post("/groups/"+ group.id + "/comments",$scope.comment)
+        	.success(function(data){        		
+        		resetComment();
+        		$scope.sending = false;
+        	})
+        	.error(function(){
+        		alert("Ha ocurrido un error al enviar el mensaje. Intentalo de nuevo.")
+        		$scope.sending = false;
+        	});
+	};
+		
+	resetComment();
 }]);

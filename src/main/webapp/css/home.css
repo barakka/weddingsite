@@ -73,7 +73,7 @@ body.home div.frame .title.small {
 body.home div.frame.us {
 	left: 0px;
 	top: 0px;
-	z-index: 3;
+	z-index: 5;
     -webkit-transform: rotate(-20deg);
 	transform: rotate(-20deg);
 }
@@ -82,10 +82,14 @@ body.home div.frame.calendar {
 	top: 20px;
 	left: 70px;	
 	z-index: 4;
+	-webkit-transform: rotate(-2deg);
+	transform: rotate(-2deg);
 }
 
 body.home div.frame.church {
-	left: 138px;	
+	left: 138px;
+	-webkit-transform: rotate(2deg);
+	transform: rotate(2deg);	
 }
 
 body.home div.frame.dinner {
@@ -115,13 +119,17 @@ body.home div.frame.upload {
 body.home div.frame.questionnaire {
 	left: 215px;
 	top: 105px;
-	z-index: 5;    
+	z-index: 5;
+	-webkit-transform: rotate(5deg);
+	transform: rotate(5deg);    
 }
 
 body.home div.frame.comment {
 	left: 60px;
 	top: 175px;
 	z-index: 0;
+	-webkit-transform: rotate(-3deg);
+	transform: rotate(-5deg);
 }
 
 body.home div.frame.other {

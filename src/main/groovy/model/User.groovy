@@ -30,8 +30,8 @@ class User {
 
     @Override
     public Object asType(Class type){
-        if (type == JSON){
-            def json = new JSON()
+        if (type == Map){
+            def json = [:]
             json.putAll( [
                     id: id, 
 					name: name, 
@@ -41,8 +41,7 @@ class User {
                     parent: parent as String, 
                     predefined: predefined
             ])
-
-            new GroovyLogger("test").info(json.toString())
+            
             return json
         }
     }

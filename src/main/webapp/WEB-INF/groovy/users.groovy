@@ -12,7 +12,7 @@ def String list(parentKey){
 		ancestor parentKey
 	}
 	
-	return new JsonBuilder(users.collect({it as JSON})).toPrettyString();
+	return new JsonBuilder(users.collect({it as Map})).toPrettyString();
 }
 
 def json = new JsonBuilder();
@@ -56,7 +56,7 @@ if (params["new"]){
 		def user = User.get(parentKey,params.userId as long);
 		
 		if (user!=null){
-			json = new JsonBuilder(user as JSON);
+			json = new JsonBuilder(user as Map);
 		} 
 		
 		print json.toPrettyString();

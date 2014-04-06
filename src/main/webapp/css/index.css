@@ -72,17 +72,43 @@ iframe.map {
   text-align: center;  
 }
  
-.centered-parent:before {
-	content: '';
-	display: inline-block;
-	height: 100%; 
-	vertical-align: middle;
-	margin-right: -0.25em; /* Adjusts for spacing */
-}
  
 .centered {
-	display: inline-block;
-  	vertical-align: middle;  
+	display: table;
+  	height: auto;
+  	
+  	position: absolute;
+  	margin: auto;
+  	top: 0;
+  	left: 0;
+  	bottom: 0;
+  	right: 0;
+  	overflow: auto;
+  	width: 50%;
+}
+
+.flex-vertical {
+	display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.flex-grow {
+	-webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -webkit-flex: 1 1 auto;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
 @media (min-width: 768px) { 

@@ -57,6 +57,7 @@ div.logo {
    	left:0;
    	right:0;*/
    	max-width: 800px;
+   	min-width: 300px;
 }
 
 .form-signin-heading{
@@ -89,6 +90,7 @@ div.logo {
 	padding-top: 5px;
 	height: 2em;
 }
+
 
 .form-signin .text-danger {
 	color: red;	

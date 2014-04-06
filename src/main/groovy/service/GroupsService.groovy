@@ -9,14 +9,15 @@ class GroupsService {
 	public JsonBuilder listAll(){
 		def groups = Group.findAll();
 		
-		return new JsonBuilder(groups.collect {it as JSON});
+		return new JsonBuilder(groups.collect {it as Map});
 	}
 	
 	public JsonBuilder findById(long id){
 		def group = Group.get(id);
 		
 		if (group!=null){
-			return new JsonBuilder(group as FullJSON);
+			//return new JsonBuilder(group as FullJSON);
+			return new JsonBuilder(group as Map);
 		} else {
 			return new JsonBuilder([]);
 		}
