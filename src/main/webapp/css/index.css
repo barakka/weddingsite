@@ -27,7 +27,7 @@ div.content-container {
 }
 
 div.frame {
-	background-image: url("/img/frame.jpg");
+	background-image: url("../img/frame.jpg");
 	background-repeat: no-repeat;
 	background-size: 100% auto;	
 }
@@ -109,6 +109,14 @@ iframe.map {
     -webkit-flex: 1 1 auto;
     -ms-flex: 1 1 auto;
     flex: 1 1 auto;
+}
+
+.flex-fix {
+	-webkit-box-flex: 0;
+    -moz-box-flex: 0;
+    -webkit-flex: none;
+    -ms-flex: none;
+    flex: none;
 }
 
 @media (min-width: 768px) { 
