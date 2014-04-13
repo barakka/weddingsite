@@ -33,7 +33,8 @@ adminModule.config([ '$routeProvider', function($routeProvider) {
 		controller : 'GroupEditCtrl',
 		resolve: {
 			group: fLoader(groupsRef,'groupId'),
-			users: fLoader(usersRef,'groupId') 
+			users: fLoader(usersRef,'groupId'),
+			profile: fLoader(profilesRef,'groupId')
 		}
 	}).when('/group', {
 		templateUrl : 'group-edit.html',
@@ -41,10 +42,24 @@ adminModule.config([ '$routeProvider', function($routeProvider) {
 		resolve: {
             groupsIndex: fLoader(groupsIndexRef)
         }
+    }).when('/export', {
+		templateUrl : 'export.html',
+		controller : 'ExportCtrl',
+		resolve: {
+            groups: fLoader(groupsRef)
+        }
 	}).otherwise({
 		redirectTo : '/groups'
 	});
 } ]);
+
+adminModule.controller("AdminCtrl",["$scope","$location",function($scope,$location){
+	$scope.$location = $location;
+
+	$scope.section = function(){
+		return $location.path().split("/")[1];
+	}
+}]);
 
 adminModule.controller("GroupListCtrl", ["$scope", "$firebase", function($scope, $firebase) {	
 	
@@ -58,22 +73,34 @@ adminModule.controller("GroupListCtrl", ["$scope", "$firebase", function($scope,
 		$scope.groups.$remove(id);
 	};
 	
-	$scope.groups = $firebase(groupsRef);
+	$scope.loading = true;
+	$firebase(groupsRef).$on("loaded",function(data){
+		$scope.loading = false;
+		$scope.groups = data;
+	})
+
 }]);
 
-adminModule.controller("GroupEditCtrl", [ "$scope", "$location", "group","users", function($scope, $location,group,users) {
+adminModule.controller("GroupEditCtrl", [ "$scope", "$location", "group","users","profile", function($scope, $location,group,users,profile) {
 	$scope.isEditing = true;
 		
 	$scope.group = group;
 	$scope.users = users;
+	$scope.profile = profile;
 	
 	$scope.save = function(){
 		$scope.users.$save().then(function(){
-			$scope.group.$save().then(function(ref){
-				$location.path("/groups").replace();			
-			});	
+			$scope.profile.$save().then(function(){
+				$scope.group.$save().then(function(ref){
+					$location.path("/groups").replace();
+				});	
+			});
 		});		
 	};
+
+	$scope.cancel = function(){
+		$location.path("/groups").replace();
+	}
 }]);
 
 adminModule.controller("GroupAddCtrl", [ "$scope", "$location", "$firebase","groupsIndex", function($scope,$location,$firebase,groupsIndex) {
@@ -104,10 +131,14 @@ adminModule.controller("GroupAddCtrl", [ "$scope", "$location", "$firebase","gro
 			groupsIndex.$child($scope.group.id).$set(true);
 			// add to collection
 			group.$set($scope.group).then(function(ref){
-				$location.path("/groups").replace();	
+				$location.path("/groups/" + $scope.group.id).replace();	
 			});
 		}		
 	};
+
+	$scope.cancel = function(){
+		$location.path("/groups").replace();
+	}
 }]);
 
 adminModule.controller("UsersListCtrl", ["$scope","$route","$firebase", function($scope,$route,$firebase){
@@ -120,3 +151,7 @@ adminModule.controller("UsersListCtrl", ["$scope","$route","$firebase", function
 		$scope.users.$remove(id);
 	};
 }])
+
+adminModule.controller("ExportCtrl",["$scope","groups",function($scope,groups){
+	$scope.groups = groups;	
+}]);
