@@ -10,3 +10,4 @@ build/
 .idea/
 *.iml
 data-backup/
+update.sh
