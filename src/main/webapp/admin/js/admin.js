@@ -24,14 +24,39 @@ adminModule.config([ '$routeProvider', function($routeProvider) {
 		    return deferred.promise;
 		}];
 	}
+
+	var uLoader = function(){
+		return ["$q","$firebaseSimpleLogin",function($q,$firebaseSimpleLogin){
+			var deferred = $q.defer();
+
+			$firebaseSimpleLogin(fBaseRef).$getCurrentUser().then(
+				function(user){
+					if (user){
+						deferred.resolve(user);
+					} else {
+						deferred.reject("User not logged in.");	
+					}
+				}, 
+				function(){
+					deferred.reject("User not logged in.");
+				}
+			);
+
+			return deferred.promise;
+		}];
+	}
 	
 	$routeProvider.when('/groups', {
 		templateUrl : 'groups-list.html',
-		controller : 'GroupListCtrl'
+		controller : 'GroupListCtrl',
+		resolve : {
+			login: uLoader()
+		}
 	}).when('/groups/:groupId', {
 		templateUrl : 'group-edit.html',
 		controller : 'GroupEditCtrl',
 		resolve: {
+			login: uLoader(),
 			group: fLoader(groupsRef,'groupId'),
 			users: fLoader(usersRef,'groupId'),
 			profile: fLoader(profilesRef,'groupId')
@@ -40,24 +65,46 @@ adminModule.config([ '$routeProvider', function($routeProvider) {
 		templateUrl : 'group-edit.html',
 		controller : 'GroupAddCtrl',
 		resolve: {
+			login: uLoader(),
             groupsIndex: fLoader(groupsIndexRef)
         }
     }).when('/export', {
 		templateUrl : 'export.html',
 		controller : 'ExportCtrl',
 		resolve: {
+			login: uLoader(),
             groups: fLoader(groupsRef)
         }
+    }).when('/login', {
+		templateUrl : 'login.html',
+		controller : 'LoginCtrl',		
 	}).otherwise({
-		redirectTo : '/groups'
+		redirectTo : '/login'
 	});
 } ]);
 
-adminModule.controller("AdminCtrl",["$scope","$location",function($scope,$location){
-	$scope.$location = $location;
+adminModule.controller("AdminCtrl",["$scope","$location","$firebaseSimpleLogin",function($scope,$location,$firebaseSimpleLogin){	
+	$scope.loginObj = $firebaseSimpleLogin(fBaseRef);
 
 	$scope.section = function(){
 		return $location.path().split("/")[1];
+	}
+
+	$scope.$on("$routeChangeError",function(){
+        $location.path("/login").replace();
+    });
+}]);
+
+adminModule.controller("LoginCtrl",["$scope","$location","$firebaseSimpleLogin",function($scope,$location,$firebaseSimpleLogin){	
+	$scope.login = function(){
+		$scope.loginObj.$login('password', {
+			   email: 'admin@barakka.org',
+			   password: 'fgfh6.79'
+			}).then(function(user) {
+			   $location.path('/groups');
+			}, function(error) {
+			   console.error('Login failed: ', error);
+		});
 	}
 }]);
 
@@ -78,6 +125,19 @@ adminModule.controller("GroupListCtrl", ["$scope", "$firebase", function($scope,
 		$scope.loading = false;
 		$scope.groups = data;
 	})
+
+	$scope.createAccounts = function(){
+		angular.forEach($scope.groups,function(element){
+			$scope.loginObj.$createUser(element.id + "@barakka.org", element.id, true).then(
+				function(){
+					console.log("Account " + element.id + "@barakka.org created.");		
+				}, 
+				function(error){
+					console.log("Error creating accoutn " + element.id + "@barakka.org created. " + error);
+				}
+			);			
+		});
+	}
 
 }]);
 
@@ -131,6 +191,16 @@ adminModule.controller("GroupAddCtrl", [ "$scope", "$location", "$firebase","gro
 			groupsIndex.$child($scope.group.id).$set(true);
 			// add to collection
 			group.$set($scope.group).then(function(ref){
+				// Create account
+				$scope.loginObj.$createUser($scope.group.id + "@barakka.org", $scope.group.id, true).then(
+					function(){
+						console.log("Account " + $scope.group.id + "@barakka.org created.");		
+					}, 
+					function(error){
+						console.error("Error creating accoutn " + $scope.group.id + "@barakka.org created. " + error);
+					}
+				);	
+
 				$location.path("/groups/" + $scope.group.id).replace();	
 			});
 		}		
