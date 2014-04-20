@@ -25,8 +25,9 @@ repositories {
 }
 
 dependencies {
-    def gaeVersion = '1.9.1'
+    def gaeVersion = '1.9.2'
     def groovyVersion = '2.2.2'
+    def gaelykVersion = '2.1'
 
     if (System.getProperty('os.name') in ['Linux', 'Mac OS X']) {
         // appengine local dev server bug
@@ -43,7 +44,7 @@ dependencies {
 
     compile 'org.sitemesh:sitemesh:3.0-alpha-2'
 
-    compile 'org.gaelyk:gaelyk:2.1'
+    compile "org.gaelyk:gaelyk:$gaelykVersion"
 
 /*
     testCompile 'org.gaelyk:gaelyk-spock:0.4'
